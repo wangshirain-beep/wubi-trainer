@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五笔字型 86 版 · 学习与练习</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">五笔字型 <span class="ver">86 版</span></div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="home">首页</button>
+    <button class="tab-btn" data-tab="keyboard">字根表</button>
+    <button class="tab-btn" data-tab="drill">字根练习</button>
+    <button class="tab-btn" data-tab="decompose">拆字练习</button>
+    <button class="tab-btn" data-tab="typing">打字练习</button>
+  </nav>
+</header>
+
+<main id="app"></main>
+
+<template id="tpl-home">
+  <section class="panel">
+    <h1>用最短时间掌握五笔字型</h1>
+    <p class="lead">按下面的顺序练习，每一步都建立在上一步的肌肉记忆之上。</p>
+    <ol class="roadmap">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>认识键盘分区与字根</h3>
+          <p>五笔字根按起笔笔画分为 5 个区（横竖撇捺折），每区 5 个键，共 25 键。先看一遍字根总表和助记口诀。</p>
+          <button class="btn" data-goto="keyboard">查看字根表 →</button>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>背熟字根 · 键位互测</h3>
+          <p>反复做「看字根选键位」「看键位选字根」的小测验，直到 25 个键的字根形成条件反射。</p>
+          <div class="mini-stat" id="home-root-stat">尚未开始</div>
+          <button class="btn" data-goto="drill">开始字根练习 →</button>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>拆字练习：汉字 → 编码</h3>
+          <p>给出汉字，手动输入完整编码，理解"取大优先、末笔识别码"等拆字规则的实际效果。</p>
+          <div class="mini-stat" id="home-decompose-stat">尚未开始</div>
+          <button class="btn" data-goto="decompose">开始拆字练习 →</button>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>打字提速：高频字词连打</h3>
+          <p>用真实高频字、词组做连续输入训练，练习一二三级简码，培养盲打速度。</p>
+          <div class="mini-stat" id="home-typing-stat">尚未开始</div>
+          <button class="btn" data-goto="typing">开始打字练习 →</button>
+        </div>
+      </li>
+    </ol>
+  </section>
+</template>
+
+<template id="tpl-keyboard">
+  <section class="panel">
+    <h2>字根总表</h2>
+    <p class="hint">点击任意按键查看该键的字根与助记口诀。颜色代表笔画分区：横 / 竖 / 撇 / 捺 / 折。</p>
+    <div id="kb-wrap"></div>
+    <div id="kb-detail" class="kb-detail"></div>
+    <h3 class="verse-title">全部助记口诀</h3>
+    <div id="verse-list" class="verse-list"></div>
+  </section>
+</template>
+
+<template id="tpl-drill">
+  <section class="panel">
+    <h2>字根练习</h2>
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="root2key">看字根 → 选键位</button>
+      <button class="mode-btn" data-mode="key2root">看键位 → 选字根</button>
+    </div>
+    <div id="drill-stats" class="drill-stats"></div>
+    <div id="drill-area" class="drill-area"></div>
+  </section>
+</template>
+
+<template id="tpl-decompose">
+  <section class="panel">
+    <h2>拆字练习</h2>
+    <p class="hint">输入该汉字的完整五笔编码（不用管候选字，回车提交）。</p>
+    <div id="decompose-stats" class="drill-stats"></div>
+    <div id="decompose-area" class="drill-area"></div>
+  </section>
+</template>
+
+<template id="tpl-typing">
+  <section class="panel">
+    <h2>打字练习</h2>
+    <p class="hint">按提示依次输入编码（尽量使用最短的简码），空格或回车确认进入下一个。</p>
+    <div class="typing-config">
+      <label>练习长度：
+        <select id="typing-length">
+          <option value="20">20</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
+      <label>内容：
+        <select id="typing-content">
+          <option value="mix" selected>单字 + 词组</option>
+          <option value="char">仅单字</option>
+          <option value="word">仅词组</option>
+        </select>
+      </label>
+      <button class="btn" id="typing-start">开始 / 重新开始</button>
+    </div>
+    <div id="typing-stats" class="drill-stats"></div>
+    <div id="typing-area" class="drill-area"></div>
+  </section>
+</template>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/keyboard.js"></script>
+<script src="js/roots.js"></script>
+<script src="js/typing.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
