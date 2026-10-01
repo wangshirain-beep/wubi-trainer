@@ -2,31 +2,30 @@
 const Storage = (() => {
   const KEY = "wubi_trainer_progress_v1";
 
+  function defaultState() {
+    return {
+      rootStats: {},    // key letter -> {seen, correct}
+      modeStats: {},    // practice mode id -> {seen, correct, best}
+      typingHistory: [], // {date, mode, count, cpm, accuracy}
+      gameBest: {}      // game pool id -> best score
+    };
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      return Object.assign(defaultState(), parsed);
+      return Object.assign(defaultState(), raw ? JSON.parse(raw) : {});
     } catch (e) {
       return defaultState();
     }
   }
 
-  function defaultState() {
-    return {
-      rootStats: {},   // key letter -> {seen, correct}
-      charStats: { seen: 0, correct: 0 },
-      typingHistory: [] // {date, count, cpm, accuracy}
-    };
-  }
-
-  let state = load();
+  const state = load();
 
   function save() {
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
-    } catch (e) { /* ignore quota errors */ }
+    } catch (e) { /* storage unavailable */ }
   }
 
   function recordRoot(keyLetter, correct) {
@@ -37,9 +36,16 @@ const Storage = (() => {
     save();
   }
 
-  function recordChar(correct) {
-    state.charStats.seen++;
-    if (correct) state.charStats.correct++;
+  function modeStat(id) {
+    return state.modeStats[id] || { seen: 0, correct: 0, best: 0 };
+  }
+
+  function recordMode(id, correct, streak) {
+    const s = modeStat(id);
+    s.seen++;
+    if (correct) s.correct++;
+    s.best = Math.max(s.best, streak);
+    state.modeStats[id] = s;
     save();
   }
 
@@ -49,13 +55,18 @@ const Storage = (() => {
     save();
   }
 
+  function recordGame(pool, score) {
+    const isBest = score > (state.gameBest[pool] || 0);
+    if (isBest) state.gameBest[pool] = score;
+    save();
+    return isBest;
+  }
+
   function rootMasteryPercent() {
-    const keys = Object.keys(state.rootStats);
-    if (!keys.length) return 0;
     let seen = 0, correct = 0;
-    keys.forEach(k => { seen += state.rootStats[k].seen; correct += state.rootStats[k].correct; });
+    Object.values(state.rootStats).forEach(v => { seen += v.seen; correct += v.correct; });
     return seen ? Math.round((correct / seen) * 100) : 0;
   }
 
-  return { state, save, recordRoot, recordChar, recordTyping, rootMasteryPercent };
+  return { state, recordRoot, modeStat, recordMode, recordTyping, recordGame, rootMasteryPercent };
 })();

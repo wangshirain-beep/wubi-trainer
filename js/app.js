@@ -2,48 +2,48 @@
 (() => {
   const app = document.getElementById("app");
   const tabBtns = document.querySelectorAll(".tab-btn");
+  let cleanup = null;
 
   const INIT = {
     home: initHome,
     keyboard: RootsView.initChart,
     drill: RootsView.initDrill,
     decompose: TypingView.initDecompose,
-    typing: TypingView.initTyping
+    typing: TypingView.initTyping,
+    game: GameView.init
   };
 
   function show(tab) {
+    if (typeof cleanup === "function") cleanup();
     tabBtns.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-    const tpl = document.getElementById("tpl-" + tab);
     app.innerHTML = "";
-    app.appendChild(tpl.content.cloneNode(true));
-    INIT[tab](app);
+    app.appendChild(document.getElementById("tpl-" + tab).content.cloneNode(true));
+    cleanup = INIT[tab](app);
     location.hash = tab;
+  }
+
+  function modeSummary(ids) {
+    let seen = 0, correct = 0;
+    ids.forEach(id => { const s = Storage.modeStat(id); seen += s.seen; correct += s.correct; });
+    return seen ? `已答 ${seen} 题 · 正确率 ${Math.round((correct / seen) * 100)}%` : "";
   }
 
   function initHome(root) {
     const s = Storage.state;
+    const set = (id, text) => { if (text) root.querySelector(id).textContent = text; };
 
-    const rootSeen = Object.values(s.rootStats).reduce((n, v) => n + v.seen, 0);
-    if (rootSeen) {
-      root.querySelector("#home-root-stat").textContent =
-        `已答 ${rootSeen} 题 · 正确率 ${Storage.rootMasteryPercent()}% · 覆盖 ${Object.keys(s.rootStats).length}/25 键`;
-    }
-
-    if (s.charStats.seen) {
-      const pct = Math.round((s.charStats.correct / s.charStats.seen) * 100);
-      root.querySelector("#home-decompose-stat").textContent = `已练 ${s.charStats.seen} 字 · 正确率 ${pct}%`;
-    }
-
+    set("#home-drill-stat", modeSummary(["level1", "keyname", "chengzi", "root2key", "key2root"]));
+    set("#home-decompose-stat", modeSummary(["decompose-common", "decompose-idcode", "decompose-hard"]));
     if (s.typingHistory.length) {
-      const best = Math.max(...s.typingHistory.map(h => h.cpm));
       const last = s.typingHistory[s.typingHistory.length - 1];
-      root.querySelector("#home-typing-stat").textContent =
-        `最近一轮 ${last.cpm} 码/分 · 正确率 ${last.accuracy}% · 最佳 ${best} 码/分`;
+      const best = Math.max(...s.typingHistory.map(h => h.cpm));
+      set("#home-typing-stat", `最近一轮 ${last.cpm} 码/分 · 正确率 ${last.accuracy}% · 最佳 ${best} 码/分`);
     }
+    const bests = Object.values(s.gameBest);
+    if (bests.length) set("#home-game-stat", `最高分 ${Math.max(...bests)}`);
 
-    root.querySelectorAll("[data-goto]").forEach(btn => {
-      btn.addEventListener("click", () => show(btn.dataset.goto));
-    });
+    root.querySelectorAll("[data-goto]").forEach(btn =>
+      btn.addEventListener("click", () => show(btn.dataset.goto)));
   }
 
   tabBtns.forEach(btn => btn.addEventListener("click", () => show(btn.dataset.tab)));

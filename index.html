@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>五笔字型 86 版 · 学习与练习</title>
+<title>五笔练字场</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,9 +12,10 @@
   <nav class="tabs">
     <button class="tab-btn active" data-tab="home">首页</button>
     <button class="tab-btn" data-tab="keyboard">字根表</button>
-    <button class="tab-btn" data-tab="drill">字根练习</button>
+    <button class="tab-btn" data-tab="drill">基础练习</button>
     <button class="tab-btn" data-tab="decompose">拆字练习</button>
     <button class="tab-btn" data-tab="typing">打字练习</button>
+    <button class="tab-btn" data-tab="game">游戏</button>
   </nav>
 </header>
 
@@ -23,30 +24,30 @@
 <template id="tpl-home">
   <section class="panel">
     <h1>用最短时间掌握五笔字型</h1>
-    <p class="lead">按下面的顺序练习，每一步都建立在上一步的肌肉记忆之上。</p>
+    <p class="lead">按下面的顺序练习，每一步都建立在上一步的肌肉记忆之上。练累了就去玩一局汉字雨。</p>
     <ol class="roadmap">
       <li>
         <div class="step-num">1</div>
         <div class="step-body">
           <h3>认识键盘分区与字根</h3>
-          <p>五笔字根按起笔笔画分为 5 个区（横竖撇捺折），每区 5 个键，共 25 键。先看一遍字根总表和助记口诀。</p>
+          <p>字根按起笔笔画分为横、竖、撇、捺、折 5 个区，每区 5 个键。先看一遍字根总表，把 25 句口诀读熟。</p>
           <button class="btn" data-goto="keyboard">查看字根表 →</button>
         </div>
       </li>
       <li>
         <div class="step-num">2</div>
         <div class="step-body">
-          <h3>背熟字根 · 键位互测</h3>
-          <p>反复做「看字根选键位」「看键位选字根」的小测验，直到 25 个键的字根形成条件反射。</p>
-          <div class="mini-stat" id="home-root-stat">尚未开始</div>
-          <button class="btn" data-goto="drill">开始字根练习 →</button>
+          <h3>基础练习：简码、键名、字根</h3>
+          <p>依次练一级简码、键名汉字、键内汉字，再做字根和键位互测，直到形成条件反射。</p>
+          <div class="mini-stat" id="home-drill-stat">尚未开始</div>
+          <button class="btn" data-goto="drill">开始基础练习 →</button>
         </div>
       </li>
       <li>
         <div class="step-num">3</div>
         <div class="step-body">
-          <h3>拆字练习：汉字 → 编码</h3>
-          <p>给出汉字，手动输入完整编码，理解"取大优先、末笔识别码"等拆字规则的实际效果。</p>
+          <h3>拆字练习：常用字、识别码字、难拆字</h3>
+          <p>看汉字输入完整编码，掌握取大优先、末笔识别码等拆字规则。</p>
           <div class="mini-stat" id="home-decompose-stat">尚未开始</div>
           <button class="btn" data-goto="decompose">开始拆字练习 →</button>
         </div>
@@ -54,10 +55,19 @@
       <li>
         <div class="step-num">4</div>
         <div class="step-body">
-          <h3>打字提速：高频字词连打</h3>
-          <p>用真实高频字、词组做连续输入训练，练习一二三级简码，培养盲打速度。</p>
+          <h3>打字练习：单字到多字词组</h3>
+          <p>分单字、二字词、三字词、四字词语、多字词组练习，每种都能看到各字取哪几码。</p>
           <div class="mini-stat" id="home-typing-stat">尚未开始</div>
           <button class="btn" data-goto="typing">开始打字练习 →</button>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>汉字雨游戏</h3>
+          <p>字词从上往下落，打出编码消灭它们。关卡越高越快，任何阶段都可以用它来复习。</p>
+          <div class="mini-stat" id="home-game-stat">尚未开始</div>
+          <button class="btn" data-goto="game">开始游戏 →</button>
         </div>
       </li>
     </ol>
@@ -67,7 +77,7 @@
 <template id="tpl-keyboard">
   <section class="panel">
     <h2>字根总表</h2>
-    <p class="hint">点击任意按键查看该键的字根与助记口诀。颜色代表笔画分区：横 / 竖 / 撇 / 捺 / 折。</p>
+    <p class="hint">点击任意按键查看该键的全部字根与助记口诀。颜色代表笔画分区：横 / 竖 / 撇 / 捺 / 折。</p>
     <div id="kb-wrap"></div>
     <div id="kb-detail" class="kb-detail"></div>
     <h3 class="verse-title">全部助记口诀</h3>
@@ -77,11 +87,15 @@
 
 <template id="tpl-drill">
   <section class="panel">
-    <h2>字根练习</h2>
+    <h2>基础练习</h2>
     <div class="mode-switch">
-      <button class="mode-btn active" data-mode="root2key">看字根 → 选键位</button>
-      <button class="mode-btn" data-mode="key2root">看键位 → 选字根</button>
+      <button class="mode-btn active" data-mode="level1">一级简码</button>
+      <button class="mode-btn" data-mode="keyname">键名汉字</button>
+      <button class="mode-btn" data-mode="chengzi">键内汉字</button>
+      <button class="mode-btn" data-mode="root2key">看字根选键位</button>
+      <button class="mode-btn" data-mode="key2root">看键位选字根</button>
     </div>
+    <div id="drill-rule" class="rule"></div>
     <div id="drill-stats" class="drill-stats"></div>
     <div id="drill-area" class="drill-area"></div>
   </section>
@@ -90,7 +104,12 @@
 <template id="tpl-decompose">
   <section class="panel">
     <h2>拆字练习</h2>
-    <p class="hint">输入该汉字的完整五笔编码（不用管候选字，回车提交）。</p>
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="common">常用字</button>
+      <button class="mode-btn" data-mode="idcode">末笔识别码字</button>
+      <button class="mode-btn" data-mode="hard">难拆字</button>
+    </div>
+    <div id="decompose-rule" class="rule"></div>
     <div id="decompose-stats" class="drill-stats"></div>
     <div id="decompose-area" class="drill-area"></div>
   </section>
@@ -99,34 +118,53 @@
 <template id="tpl-typing">
   <section class="panel">
     <h2>打字练习</h2>
-    <p class="hint">按提示依次输入编码（尽量使用最短的简码），空格或回车确认进入下一个。</p>
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="1">单字</button>
+      <button class="mode-btn" data-mode="2">二字词</button>
+      <button class="mode-btn" data-mode="3">三字词</button>
+      <button class="mode-btn" data-mode="4">四字词语</button>
+      <button class="mode-btn" data-mode="5">多字词组</button>
+    </div>
+    <div id="typing-rule" class="rule"></div>
     <div class="typing-config">
-      <label>练习长度：
+      <label for="typing-length">练习长度：
         <select id="typing-length">
           <option value="20">20</option>
           <option value="50" selected>50</option>
           <option value="100">100</option>
         </select>
       </label>
-      <label>内容：
-        <select id="typing-content">
-          <option value="mix" selected>单字 + 词组</option>
-          <option value="char">仅单字</option>
-          <option value="word">仅词组</option>
-        </select>
-      </label>
-      <button class="btn" id="typing-start">开始 / 重新开始</button>
+      <label for="typing-hint"><input type="checkbox" id="typing-hint" checked> 显示取码提示</label>
+      <button class="btn" id="typing-start">重新开始</button>
     </div>
     <div id="typing-stats" class="drill-stats"></div>
     <div id="typing-area" class="drill-area"></div>
   </section>
 </template>
 
+<template id="tpl-game">
+  <section class="panel">
+    <h2>汉字雨</h2>
+    <div class="typing-config">
+      <label for="game-pool">内容：<select id="game-pool"></select></label>
+      <button class="btn" id="game-start">开始游戏</button>
+    </div>
+    <div id="game-hud" class="drill-stats game-hud"></div>
+    <div id="game-field" class="game-field"></div>
+    <div class="game-bottom">
+      <input class="type-input" id="game-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="在这里输入编码">
+      <div id="game-log" class="hint"></div>
+    </div>
+  </section>
+</template>
+
 <script src="js/data.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/common.js"></script>
 <script src="js/keyboard.js"></script>
 <script src="js/roots.js"></script>
 <script src="js/typing.js"></script>
+<script src="js/game.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
