@@ -22,6 +22,13 @@ ID_CHARS = 600
 STROKE_LETTERS = set("ghtynl")
 ID_LETTERS = set("gfdhjktreyuinbv")
 
+# Roots that are also standalone, commonly used characters (成字字根);
+# components such as 讠 or 艹 are excluded on purpose.
+CHENGZI_CHARS = set(
+    "一戋五士二干十寸雨犬三古石厂丁西戈弋廿七上止卜曰早虫川甲四皿车力由贝几竹手斤乃用豕"
+    "八儿夕文方广辛六门小米巳己乙尸心羽耳了也刀九臼巴马幺弓匕"
+)
+
 # Characters commonly cited as hard to decompose in 86 Wubi.
 HARD_CHARS = (
     "凸凹鼎噩爽曳臧戊戌戍成我身乘必及母毋册甩卵断兜黄末未夷出再丹年鬼舞剩承函乖垂夜北乐"
@@ -112,7 +119,7 @@ def main():
         for r in k["roots"]:
             root_chars.add(r["r"])
             ch = r["r"]
-            if "n" in r or ch == k["keyName"] or ch not in full:
+            if ch not in CHENGZI_CHARS or ch not in full:
                 continue
             code = full[ch]
             if code[0] == letter.lower() and set(code[1:]) <= STROKE_LETTERS:
