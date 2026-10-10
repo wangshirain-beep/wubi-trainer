@@ -5,6 +5,7 @@ const LookupView = (() => {
     "ū": "u1", "ú": "u2", "ǔ": "u3", "ù": "u4", "ǖ": "v1", "ǘ": "v2", "ǚ": "v3", "ǜ": "v4", "ü": "v0",
     "ń": "n2", "ň": "n3", "ǹ": "n4", "ḿ": "m2" };
   const SHORT_NAMES = { 1: "一级简码", 2: "二级简码", 3: "三级简码" };
+  const WORD_LABEL = { 2: "二字词", 3: "三字词", 4: "四字成语或四字词语", 5: "多字词组" };
   let pinyinIndex = null;
   let rootInfo = null;
 
@@ -130,18 +131,70 @@ const LookupView = (() => {
     </div>`;
   }
 
-  function wordHtml(text) {
-    const chars = [...text];
-    if (chars.some(c => !WUBI_LOOKUP[c])) return "";
+  // Explains each letter of a character's full code: which root or stroke it came from.
+  function letterSources(ch) {
+    const [codesStr, , type, rootsStr] = WUBI_LOOKUP[ch];
+    const full = codesStr.split(" ").pop();
+    const roots = rootsStr ? rootsStr.split(" ") : [];
+    const n = roots.length;
+    return [...full].map((l, i) => {
+      const key = `${l.toUpperCase()}（${WUBI_DATA.roots.keys[l.toUpperCase()].keyName}键）`;
+      if (type === "keyname") return `${key}，键名汉字`;
+      if (type === "chengzi") {
+        return i === 0 ? `${key}，「${ch}」本身就是字根`
+          : `${["首笔", "次笔", "末笔"][i - 1]}「${Common.STROKE[l] || l}」`;
+      }
+      if (type !== "split") return `${key}`;
+      const ri = n > 4 ? [0, 1, 2, n - 1][i] : i;
+      if (ri < n) return `「${roots[ri]}」在 ${key}`;
+      const m = Common.idMeaning(l);
+      return `末笔识别码 ${l.toUpperCase()}（${m.stroke}、${m.shape}）`;
+    });
+  }
+
+  function wordCard(word) {
+    const chars = [...word];
+    const missing = chars.filter(c => !WUBI_LOOKUP[c]);
+    if (missing.length) {
+      return `<div class="lk-card"><h3>「${word}」</h3><p class="hint">「${missing.join("")}」不在收录的 6763 个简体字里，暂时无法查这个词。</p></div>`;
+    }
+    const n = chars.length;
     const fulls = chars.map(c => WUBI_LOOKUP[c][0].split(" ").pop());
-    const takes = Common.wordTakes(chars.length);
-    const code = fulls.map((f, i) => f.slice(0, takes[i])).join("");
-    const parts = chars.map((c, i) =>
-      `<span class="bd-char${takes[i] ? "" : " dim"}">${c}<span class="bd-code"><b>${fulls[i].slice(0, takes[i])}</b>${fulls[i].slice(takes[i])}</span></span>`).join("");
-    return `<div class="lk-card"><h3>词组「${text}」的编码</h3>
-      <p>${Common.WORD_RULES[Math.min(chars.length, 5)]}</p>
-      <div class="breakdown">${parts}<span class="bd-result">→ <b>${code}</b></span></div>
-      <p class="hint">这是按词组取码规则算出的编码；输入法词库里没有收录的词，打出来可能需要单字输入。</p></div>`;
+    const takes = Common.wordTakes(n);
+    const ruleCode = fulls.map((f, i) => f.slice(0, takes[i])).join("");
+    const dictCode = WUBI_WORDS[word];
+    const code = dictCode || ruleCode;
+
+    const rows = chars.map((c, i) => {
+      if (!takes[i]) return "";
+      const sources = letterSources(c).slice(0, takes[i]);
+      return `<li><b>${c}</b> 取前 ${takes[i]} 码 <span class="mono">${fulls[i].slice(0, takes[i])}</span>：${sources.join("；")}</li>`;
+    }).join("");
+    const skipped = chars.filter((_, i) => !takes[i]);
+    const skipNote = skipped.length ? `<p class="hint">「${skipped.join("")}」不取码。</p>` : "";
+
+    let note;
+    if (dictCode && dictCode !== ruleCode) {
+      note = `<p class="warn">词库里这个词的编码是 <b>${dictCode}</b>，和按规则算的 ${ruleCode} 不一样。以词库为准，这类词多是约定俗成的取法。</p>`;
+    } else if (dictCode) {
+      note = `<p class="good">词库收录此词，编码与取码规则一致。</p>`;
+    } else {
+      note = `<p class="hint">词库没有收录这个词，编码是按规则算出的。输入法里若打不出，就分开打单字。</p>`;
+    }
+
+    return `<div class="lk-card">
+      <div class="lk-head">
+        <div class="lk-char lk-word">${word}</div>
+        <div class="lk-meta">
+          <div class="hint">${WORD_LABEL[Math.min(n, 5)]}</div>
+          <div>词组编码：${codeChips(code)}</div>
+        </div>
+      </div>
+      <p>${Common.WORD_RULES[Math.min(n, 5)]}</p>
+      <ul class="lk-letters">${rows}</ul>
+      ${skipNote}
+      ${note}
+    </div>`;
   }
 
   function wildcard(pattern) {
@@ -160,6 +213,8 @@ const LookupView = (() => {
     const input = root.querySelector("#lk-input");
     const cands = root.querySelector("#lk-cands");
     const result = root.querySelector("#lk-result");
+    const wdInput = root.querySelector("#lk-word-input");
+    const wdResult = root.querySelector("#lk-word-result");
     const zInput = root.querySelector("#lk-z");
     const zResult = root.querySelector("#lk-z-result");
 
@@ -172,14 +227,26 @@ const LookupView = (() => {
       return list.map(ch => `<button class="lk-cand" data-ch="${ch}">${ch}</button>`).join("");
     }
 
+    function runWords() {
+      const words = wdInput.value.split(/[\s,，、]+/).filter(w => [...w].length >= 2 && /^\p{Script=Han}+$/u.test(w)).slice(0, 12);
+      wdResult.innerHTML = words.length
+        ? words.map(wordCard).join("")
+        : (wdInput.value.trim() ? `<p class="hint">请输入两个字以上的汉字词组，例如 中国人。单字请在上方查码。</p>` : "");
+    }
+
     function run() {
       const v = input.value.trim();
       cands.innerHTML = ""; result.innerHTML = "";
       if (!v) return;
       const han = [...v].filter(c => /\p{Script=Han}/u.test(c));
-      if (han.length) {
-        const text = han.slice(0, 8).join("");
-        result.innerHTML = (han.length > 1 ? wordHtml(text) : "") + [...text].map(explainHtml).join("");
+      if (han.length > 1) {
+        cands.innerHTML = `<p class="hint">多个汉字请在下方「词组查码」里查看。</p>`;
+        wdInput.value = v;
+        runWords();
+        return;
+      }
+      if (han.length === 1) {
+        result.innerHTML = explainHtml(han[0]);
         return;
       }
       if (!/^[a-zA-Züāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ:]+[1-5]?$/.test(v)) {
@@ -201,6 +268,7 @@ const LookupView = (() => {
       if (b) show(b.dataset.ch);
     });
     input.addEventListener("input", run);
+    wdInput.addEventListener("input", runWords);
 
     zInput.addEventListener("input", () => {
       const v = zInput.value.toLowerCase().replace(/[^a-z]/g, "").slice(0, 4);
@@ -219,6 +287,8 @@ const LookupView = (() => {
 
     input.value = "ni";
     run();
+    wdInput.value = "中国人 四字成语";
+    runWords();
     input.focus();
   }
 

@@ -152,6 +152,12 @@
     <input class="lk-input" id="lk-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="输入拼音或汉字">
     <div id="lk-cands"></div>
     <div id="lk-result"></div>
+    <div class="lk-card lk-words">
+      <h3>词组查码</h3>
+      <p class="hint">用其他输入法打出词组，粘贴到这里，就能看到它的编码和每个字取的码。可以一次输入多个词，用空格或逗号分开。</p>
+      <input class="lk-input" id="lk-word-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="如 中国人 四字成语 版权所有">
+      <div id="lk-word-result"></div>
+    </div>
     <div class="lk-card lk-z">
       <h3>万能键 Z</h3>
       <p>五笔的 25 个字根键里没有 Z，Z 是<b>万能学习键</b>：拆字时某一码想不起来，就在那个位置打 Z，输入法会列出所有符合其余几码的字，并提示完整编码。</p>
@@ -181,6 +187,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/lookup.js"></script>
+<script src="js/words.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/common.js"></script>
 <script src="js/keyboard.js"></script>

@@ -12,6 +12,7 @@ import json
 IDC2 = set("⿰⿱⿴⿵⿶⿷⿸⿹⿺⿻")
 IDC3 = set("⿲⿳")
 STROKES = {"g": "横", "h": "竖", "t": "撇", "y": "捺", "n": "折"}
+ID_LETTERS = set("gfdhjktreyuinbv")
 
 # Wubi splits for components that the IDS data does not break down the way
 # Wubi does.  Entries are tried alongside IDS candidates and must still
@@ -181,7 +182,7 @@ class Decomposer:
             n = len(s)
             if n >= 4 and keys[:3] + keys[-1] == code:
                 cand = {"t": "split", "r": s}
-            elif n in (2, 3) and len(code) == n + 1 and keys == code[:n]:
+            elif n in (2, 3) and len(code) == n + 1 and keys == code[:n] and code[-1] in ID_LETTERS:
                 cand = {"t": "split", "r": s, "id": code[-1]}
             else:
                 continue

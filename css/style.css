@@ -441,6 +441,10 @@ h2 { font-size: 20px; margin-top: 0; }
 .lk-letters { margin: 8px 0; padding-left: 20px; }
 .lk-short { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
 .lk-z { margin-top: 20px; background: var(--bg); }
+.lk-words { margin-top: 20px; }
+.lk-word { font-size: 44px; letter-spacing: 2px; }
+.lk-card .warn { color: var(--bad); }
+.lk-card .good { color: var(--good); }
 
 @media (prefers-reduced-motion: reduce) {
   .drop.hit, .drop.missed { transition: none; }
