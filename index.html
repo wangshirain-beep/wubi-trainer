@@ -16,6 +16,7 @@
     <button class="tab-btn" data-tab="decompose">拆字练习</button>
     <button class="tab-btn" data-tab="typing">打字练习</button>
     <button class="tab-btn" data-tab="game">游戏</button>
+    <button class="tab-btn" data-tab="lookup">查码</button>
   </nav>
 </header>
 
@@ -24,7 +25,7 @@
 <template id="tpl-home">
   <section class="panel">
     <h1>用最短时间掌握五笔字型</h1>
-    <p class="lead">按下面的顺序练习，每一步都建立在上一步的肌肉记忆之上。练累了就去玩一局汉字雨。</p>
+    <p class="lead">按下面的顺序练习，每一步都建立在上一步的肌肉记忆之上。练累了就去玩一局汉字雨；遇到不会打的字，用「查码」按拼音查编码和拆分理由。</p>
     <ol class="roadmap">
       <li>
         <div class="step-num">1</div>
@@ -143,6 +144,25 @@
   </section>
 </template>
 
+<template id="tpl-lookup">
+  <section class="panel">
+    <h2>查码解释</h2>
+    <p class="hint">不会打的字，输入拼音（如 ni、ni3、lv）或直接输入汉字，查看五笔编码和拆分理由。输入多个汉字还会给出词组编码。</p>
+    <label for="lk-input" class="sr-only">拼音或汉字</label>
+    <input class="lk-input" id="lk-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="输入拼音或汉字">
+    <div id="lk-cands"></div>
+    <div id="lk-result"></div>
+    <div class="lk-card lk-z">
+      <h3>万能键 Z</h3>
+      <p>五笔的 25 个字根键里没有 Z，Z 是<b>万能学习键</b>：拆字时某一码想不起来，就在那个位置打 Z，输入法会列出所有符合其余几码的字，并提示完整编码。</p>
+      <p>例如「你」想不起第二个字根，可以打 <b>WZIY</b>，在候选里找到「你」，就知道完整编码是 WQIY。</p>
+      <label for="lk-z">试一试，输入含 Z 的编码：</label>
+      <input class="type-input" id="lk-z" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="如 wziy">
+      <div id="lk-z-result"></div>
+    </div>
+  </section>
+</template>
+
 <template id="tpl-game">
   <section class="panel">
     <h2>汉字雨</h2>
@@ -160,12 +180,14 @@
 </template>
 
 <script src="js/data.js"></script>
+<script src="js/lookup.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/common.js"></script>
 <script src="js/keyboard.js"></script>
 <script src="js/roots.js"></script>
 <script src="js/typing.js"></script>
 <script src="js/game.js"></script>
+<script src="js/lookup-view.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

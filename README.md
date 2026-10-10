@@ -9,6 +9,7 @@
 3. **拆字练习**：常用字、末笔识别码字（附识别码表）、难拆字，提交后显示逐键编码和规则说明。
 4. **打字练习**：单字、二字词、三字词、四字词语、多字词组，显示每个字取哪几码，结束时给出星级和错题。
 5. **游戏**：汉字雨，打出下落字词的编码消灭它们，关卡越高越快，有连击和最高分。
+6. **查码**：输入拼音或汉字，显示五笔编码、简码和拆分理由（键名汉字、成字字根、取一二三末、末笔识别码），附万能键 Z 查询。
 
 学习进度保存在浏览器 localStorage 中。
 
@@ -23,12 +24,14 @@ python3 -m http.server 8000   # 然后访问 http://localhost:8000
 
 - `data/roots.json`：字根表与助记口诀（手工整理，并用编码数据校验过字根所在键位）。
 - `js/data.js`：由 `scripts/build_data.py` 生成，包含常用单字、一级简码、成字字根、识别码字、难拆字和按字数分类的词组编码；词组编码在生成时都按取码规则校验过。
+- `js/lookup.js`：查码页数据，包含 GB2312 全部 6763 个简体字的编码、拼音和字根拆分。拆分由 `scripts/decompose.py` 生成：候选拆法来自 makemeahanzi 的汉字结构数据加手工补充表，只有按五笔规则能算出词库真实编码的拆法才会采用；约 86% 的字有拆分，其余显示逐码提示。
 
 重新生成数据：
 
 ```bash
 curl -LO https://raw.githubusercontent.com/rime/rime-wubi/master/wubi86.dict.yaml
-python3 scripts/build_data.py wubi86.dict.yaml
+curl -LO https://raw.githubusercontent.com/skishore/makemeahanzi/master/dictionary.txt
+python3 scripts/build_data.py wubi86.dict.yaml dictionary.txt
 ```
 
-编码数据来自 [rime-wubi](https://github.com/rime/rime-wubi)（LGPLv3）。
+编码数据来自 [rime-wubi](https://github.com/rime/rime-wubi)（LGPLv3），拼音和汉字结构数据来自 [makemeahanzi](https://github.com/skishore/makemeahanzi)（LGPLv3）。
