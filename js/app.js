@@ -10,7 +10,8 @@
     drill: RootsView.initDrill,
     decompose: TypingView.initDecompose,
     typing: TypingView.initTyping,
-    game: GameView.init
+    game: GameView.init,
+    lookup: LookupView.init
   };
 
   function show(tab) {

@@ -21,7 +21,9 @@ const RootsView = (() => {
       detail.innerHTML = `
         <div class="kd-title">${letter} 键 · ${zone.name}第 ${info.pos} 位（区位号 ${info.zone}${info.pos}）· 键名字「${info.keyName}」</div>
         <div class="kd-verse">口诀：${info.verse}</div>
-        <div class="kd-roots">${info.roots.map(rootChip).join("")}</div>`;
+        ${info.verseAlt ? `<div class="hint">另一常见版本：${info.verseAlt}</div>` : ""}
+        <div class="kd-roots">${info.roots.map(rootChip).join("")}</div>
+        <div class="hint">共 ${info.roots.length} 个字根（含变形部件和笔画字根）</div>`;
     }
 
     Keyboard.render(kbWrap, { onKeyClick: showDetail });
